@@ -1,8 +1,9 @@
 const express = require('express');
 const helmet = require('helmet');
 const fs = require('fs');
-const app = express();
+const si = require('systeminformation');
 
+const app = express();
 const dir = '/ftb2/backups/';
 const path = __dirname + dir
 
@@ -39,6 +40,32 @@ app.get('/getfile/:name', (req, res) => {
         if (err) res.status(404)
             .send('Unable to locate ' + file_name + '!');
     });
+
+});
+
+app.get('/getstats', async (req, res) => {
+
+    const time = await si.time();
+    const cpu = await si.cpuCurrentspeed();
+    const load = await si.currentLoad();
+    const mem = await si.mem();
+    const fs = await si.fsSize();
+    const disc = await si.disksIO();
+
+    const info = {
+        uptime: time.uptime,
+        cpu_avg: cpu.avg,
+        current_load: load.currentload,
+        average_load: load.avgload,
+        memory_used: mem.used,
+        memory_total: mem.total,
+        fs_used: fs.used,
+        fs_size: fs.size,
+        disc_read: disc.rIO,
+        disc_write: disc.wIO
+    }
+
+    res.send(info);
 
 });
 
